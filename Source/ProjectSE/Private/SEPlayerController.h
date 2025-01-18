@@ -19,4 +19,10 @@ class ASEPlayerController : public APlayerController
 public:
 	virtual void TickActor(float DeltaTime, enum ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
 
+	UFUNCTION(BlueprintCallable)
+	void TryInteract();
+
+
+protected:
+	TWeakObjectPtr<class UInteractionComponent> CurrentInteraction;
 };

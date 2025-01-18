@@ -1,6 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "ProjectSECharacter.h"
+#include "SEPlayerCharacter.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -16,7 +16,7 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 //////////////////////////////////////////////////////////////////////////
 // AProjectSECharacter
 
-AProjectSECharacter::AProjectSECharacter()
+ASEPlayerCharacter::ASEPlayerCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -57,7 +57,7 @@ AProjectSECharacter::AProjectSECharacter()
 //////////////////////////////////////////////////////////////////////////
 // Input
 
-void AProjectSECharacter::NotifyControllerChanged()
+void ASEPlayerCharacter::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
 
@@ -71,7 +71,7 @@ void AProjectSECharacter::NotifyControllerChanged()
 	}
 }
 
-void AProjectSECharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASEPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
@@ -81,10 +81,10 @@ void AProjectSECharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AProjectSECharacter::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASEPlayerCharacter::Move);
 
 		// Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AProjectSECharacter::Look);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASEPlayerCharacter::Look);
 	}
 	else
 	{
@@ -92,7 +92,7 @@ void AProjectSECharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	}
 }
 
-void AProjectSECharacter::Move(const FInputActionValue& Value)
+void ASEPlayerCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
@@ -115,7 +115,7 @@ void AProjectSECharacter::Move(const FInputActionValue& Value)
 	}
 }
 
-void AProjectSECharacter::Look(const FInputActionValue& Value)
+void ASEPlayerCharacter::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();

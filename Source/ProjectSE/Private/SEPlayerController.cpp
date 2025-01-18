@@ -3,23 +3,55 @@
 
 #include "SEPlayerController.h"
 
+#include "InteractionComponent.h"
+#include "SECharacter.h"
+
 
 
 
 ASEPlayerController::ASEPlayerController()
 {
-	bEnableClickEvents = true;
-	bEnableMouseOverEvents = true;
 }
 
 void ASEPlayerController::TickActor(float DeltaTime, enum ELevelTick TickType, FActorTickFunction& ThisTickFunction)
 {
-	if (bShowMouseCursor == false)
-	{
-		int32 SizeX, SizeY;
-		GetViewportSize(SizeX, SizeY);
-		SetMouseLocation(SizeX * 0.5f, SizeY * 0.5f);
-	}
-
 	Super::TickActor(DeltaTime, TickType, ThisTickFunction);
+	
+	ULocalPlayer* LocPlayer = Cast<ULocalPlayer>(Player);
+	if (LocPlayer && LocPlayer->ViewportClient)
+	{
+		FVector2D ViewportSize;
+		FHitResult HitResult;
+
+		LocPlayer->ViewportClient->GetViewportSize(ViewportSize);
+		bool bHit = GetHitResultAtScreenPosition(ViewportSize * 0.5f, ECC_Visibility, true, HitResult);
+
+		UInteractionComponent* NewInteraction = bHit ? Cast<UInteractionComponent>(HitResult.GetComponent()) : nullptr;
+		UInteractionComponent* OldInteraction = CurrentInteraction.Get();
+
+		if (NewInteraction != OldInteraction)
+		{
+			CurrentInteraction = NewInteraction;
+
+			if (OldInteraction)
+			{
+				OldInteraction->OnFocusedOut(this);
+			}
+
+			if (NewInteraction)
+			{
+				NewInteraction->OnFocusedIn(this);
+			}
+		}
+	}
+}
+
+void ASEPlayerController::TryInteract()
+{
+	ASECharacter* SECharacter = GetPawn<ASECharacter>();
+
+	if (CurrentInteraction.IsValid() && CurrentInteraction->IsInteractable(SECharacter))
+	{
+		CurrentInteraction->Interact(SECharacter);
+	}
 }

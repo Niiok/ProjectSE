@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "SECharacter.h"
 #include "Logging/LogMacros.h"
-#include "ProjectSECharacter.generated.h"
+#include "SEPlayerCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -16,7 +16,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AProjectSECharacter : public ACharacter
+class ASEPlayerCharacter : public ASECharacter
 {
 	GENERATED_BODY()
 
@@ -45,7 +45,7 @@ class AProjectSECharacter : public ACharacter
 	UInputAction* LookAction;
 
 public:
-	AProjectSECharacter();
+	ASEPlayerCharacter();
 	
 
 protected:
