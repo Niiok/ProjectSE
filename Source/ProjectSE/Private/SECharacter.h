@@ -11,21 +11,29 @@ class ASECharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this character's properties
+protected:
 	ASECharacter();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	
+public:
+	class UInteractionComponent* GetFocusingComponent() const;
+
+	UFUNCTION(BlueprintCallable)
+	void TryInteract();
 	
+	UFUNCTION(BlueprintCallable)
+	void TryHoldOrUnhold();
+	
+	UFUNCTION(BlueprintCallable)
+	void TryUse();
+
+	class UInteractionComponent* GetHolding() const { return CurrentHolding.Get(); }
+	bool Hold(class UInteractionComponent* InComponent);
+	bool UnHold();
+
+protected:
+	TWeakObjectPtr<class UInteractionComponent> CurrentHolding;
 };

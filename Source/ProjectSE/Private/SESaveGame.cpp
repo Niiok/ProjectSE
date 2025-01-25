@@ -11,22 +11,18 @@ bool USESaveGame::IsFloorOpened(uint8 InFloor) const
 	return OpenedFloors & (1ll << InFloor);
 }
 
-bool USESaveGame::SetFloorOpened(uint8 InFloor)
+bool USESaveGame::SetFloorState(uint8 InFloor, bool bIsOpend)
 {
-	if (InFloor < sizeof(OpenedFloors) * 8 && IsFloorOpened(InFloor) == false)
+	if (InFloor < sizeof(OpenedFloors) * 8 && IsFloorOpened(InFloor) != bIsOpend)
 	{
-		OpenedFloors |= (1ll << InFloor);
-		return true;
-	}
-
-	return false;
-}
-
-bool USESaveGame::SetFloorClosed(uint8 InFloor)
-{
-	if (InFloor < sizeof(OpenedFloors) * 8 && IsFloorOpened(InFloor))
-	{
-		OpenedFloors &= ~(1 << InFloor);
+		if (bIsOpend)
+		{
+			OpenedFloors |= (1ll << InFloor);
+		}
+		else
+		{
+			OpenedFloors &= ~(1ll << InFloor);
+		}
 		return true;
 	}
 

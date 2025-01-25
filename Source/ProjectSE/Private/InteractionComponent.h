@@ -15,21 +15,23 @@ DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FComponentOnUseSignature, UIn
 /**
  * 
  */
-UCLASS()
+UCLASS(meta = (BlueprintSpawnableComponent))
 class UInteractionComponent : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 
 public:
-	virtual bool IsInteractable(class ASECharacter* InCharacter) const { return true; }
-	virtual bool IsHoldable(class ASECharacter* InCharacter) const { return false; }
-	virtual bool IsUnholdable(class ASECharacter* InCharacter) const { return false; }
-	virtual bool IsUsable(class ASECharacter* InCharacter) const { return false; }
+	static const FName HoldSocket;
 
-	virtual void Interact(class ASECharacter* InCharacter);
-	virtual void Hold(class ASECharacter* InCharacter);
-	virtual void Unhold(class ASECharacter* InCharacter);
-	virtual void Use(class ASECharacter* InCharacter);
+	virtual bool IsInteractable(class ASECharacter* InInteractor) const { return true; }
+	virtual bool IsHoldable(class ASECharacter* InHolder) const { return false; }
+	virtual bool IsUnholdable(class ASECharacter* InUnHolder) const { return false; }
+	virtual bool IsUsable(class ASECharacter* InUser) const { return false; }
+
+	virtual void Interact(class ASECharacter* InInteractor);
+	virtual void Hold(class ASECharacter* InHolder);
+	virtual void UnHold(class ASECharacter* InUnHolder);
+	virtual void Use(class ASECharacter* InUser);
 
 	virtual void OnFocusedIn(class ASEPlayerController* InPlayerController);
 	virtual void OnFocusedOut(class ASEPlayerController* InPlayerController);

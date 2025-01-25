@@ -3,13 +3,24 @@
 
 #include "SEGameMode.h"
 
+#include "Elevator.h"
 #include "Engine/SoftWorldReference.h"
 #include "Kismet/GameplayStatics.h"
+#include "SEGameState.h"
+#include "SESaveGame.h"
 #include "Streaming/LevelStreamingDelegates.h"
-#include "Elevator.h"
 
 
 
+
+
+static const FString SaveSlot = TEXT("SaveSlot");
+static constexpr int32 SaveIndex = 1;
+
+ASEGameMode::ASEGameMode()
+{
+	GameStateClass = ASEGameState::StaticClass();
+}
 
 void ASEGameMode::BeginPlay()
 {
@@ -27,6 +38,31 @@ void ASEGameMode::BeginDestroy()
 
 	FWorldDelegates::LevelAddedToWorld.RemoveAll(this);
 	FWorldDelegates::LevelRemovedFromWorld.RemoveAll(this);
+
+	Save();
+}
+
+void ASEGameMode::InitGameState()
+{
+	Super::InitGameState();
+
+	if (ASEGameState* GS = GetGameState<ASEGameState>())
+	{
+		GS->OpenedFloors = GetSaveGame()->GetOpenedFloors();
+	}
+}
+
+void ASEGameMode::SetFloorState(uint8 InFloor, bool bIsOpened)
+{
+	if (GetSaveGame()->SetFloorState(InFloor, bIsOpened))
+	{
+		if (ASEGameState* GS = GetGameState<ASEGameState>())
+		{
+			auto OldValue = GS->OpenedFloors;
+			GS->OpenedFloors = GetSaveGame()->GetOpenedFloors();
+			GS->OnRep_OpenedFloors(OldValue);
+		}
+	}
 }
 
 bool ASEGameMode::IsChangingFloor() const
@@ -50,9 +86,46 @@ void ASEGameMode::ChangeFloor(const struct FSoftWorldReference& InWorld)
 	}
 }
 
+void ASEGameMode::ChangeFloor(uint8 InFloor)
+{
+	if (const struct FSoftWorldReference* Findee = FloorToLevel.Find(InFloor))
+	{
+		ChangeFloor(*Findee);
+	}
+}
+
 void ASEGameMode::RegisterElevator(class AElevator* InElevator)
 {
 	ElevatorActor = InElevator;
+}
+
+class USESaveGame* ASEGameMode::GetSaveGame() const
+{
+	if (SaveGame == nullptr)
+	{
+		if (UGameplayStatics::DoesSaveGameExist(SaveSlot, SaveIndex))
+		{
+			SaveGame = Cast<USESaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlot, SaveIndex));
+		}
+		
+		if (SaveGame == nullptr)
+		{
+			SaveGame = Cast<USESaveGame>(UGameplayStatics::CreateSaveGameObject(USESaveGame::StaticClass()));
+			SaveGame->SetFloorState(StartingFloor, true);
+		}
+	}
+
+	check(SaveGame != nullptr);
+
+	return SaveGame;
+}
+
+void ASEGameMode::Save()
+{
+	if (SaveGame)
+	{
+		UGameplayStatics::SaveGameToSlot(SaveGame, SaveSlot, SaveIndex);
+	}
 }
 
 void ASEGameMode::InitializeCurrentFloor()

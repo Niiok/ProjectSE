@@ -2,39 +2,50 @@
 
 
 #include "InteractionComponent.h"
+#include "SECharacter.h"
 
 
 
+const FName UInteractionComponent::HoldSocket = TEXT("hand_r");
 
-void UInteractionComponent::Interact(class ASECharacter* InCharacter)
+void UInteractionComponent::Interact(class ASECharacter* InInteractor)
 {
 	if (IsValid(this))
 	{
-		OnInteract.Broadcast(InCharacter);
+		OnInteract.Broadcast(InInteractor);
 	}
 }
 
-void UInteractionComponent::Hold(class ASECharacter* InCharacter)
+void UInteractionComponent::Hold(class ASECharacter* InHolder)
 {
 	if (IsValid(this))
 	{
-		OnHold.Broadcast(InCharacter);
+		OnHold.Broadcast(InHolder);
+	}
+
+	if (auto MeshComponent = InHolder ? InHolder->GetMesh() : nullptr)
+	{
+		FAttachmentTransformRules AttachRule(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, true);
+		AttachToComponent(MeshComponent, AttachRule, HoldSocket);
 	}
 }
 
-void UInteractionComponent::Unhold(class ASECharacter* InCharacter)
+void UInteractionComponent::UnHold(class ASECharacter* InUnHolder)
 {
 	if (IsValid(this))
 	{
-		OnUnhold.Broadcast(InCharacter);
+		OnUnhold.Broadcast(InUnHolder);
 	}
+
+	FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
+	DetachFromComponent(DetachRule);
 }
 
-void UInteractionComponent::Use(class ASECharacter* InCharacter)
+void UInteractionComponent::Use(class ASECharacter* InUser)
 {
 	if (IsValid(this))
 	{
-		OnUse.Broadcast(InCharacter);
+		OnUse.Broadcast(InUser);
 	}
 }
 

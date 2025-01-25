@@ -5,13 +5,10 @@
 
 #include "InteractionComponent.h"
 #include "SECharacter.h"
+#include "SEGameMode.h"
 
 
 
-
-ASEPlayerController::ASEPlayerController()
-{
-}
 
 void ASEPlayerController::TickActor(float DeltaTime, enum ELevelTick TickType, FActorTickFunction& ThisTickFunction)
 {
@@ -27,11 +24,11 @@ void ASEPlayerController::TickActor(float DeltaTime, enum ELevelTick TickType, F
 		bool bHit = GetHitResultAtScreenPosition(ViewportSize * 0.5f, ECC_Visibility, true, HitResult);
 
 		UInteractionComponent* NewInteraction = bHit ? Cast<UInteractionComponent>(HitResult.GetComponent()) : nullptr;
-		UInteractionComponent* OldInteraction = CurrentInteraction.Get();
+		UInteractionComponent* OldInteraction = FocusingInteraction.Get();
 
 		if (NewInteraction != OldInteraction)
 		{
-			CurrentInteraction = NewInteraction;
+			FocusingInteraction = NewInteraction;
 
 			if (OldInteraction)
 			{
@@ -46,12 +43,18 @@ void ASEPlayerController::TickActor(float DeltaTime, enum ELevelTick TickType, F
 	}
 }
 
-void ASEPlayerController::TryInteract()
+void ASEPlayerController::ServerChangeFloor_Implementation(uint8 InFloor)
 {
-	ASECharacter* SECharacter = GetPawn<ASECharacter>();
-
-	if (CurrentInteraction.IsValid() && CurrentInteraction->IsInteractable(SECharacter))
+	if (ASEGameMode* GM = GetWorld()->GetAuthGameMode<ASEGameMode>())
 	{
-		CurrentInteraction->Interact(SECharacter);
+		GM->ChangeFloor(InFloor);
+	}
+}
+
+void ASEPlayerController::ServerSetFloorState_Implementation(uint8 InFloor, bool bIsOpened)
+{
+	if (ASEGameMode* GM = GetWorld()->GetAuthGameMode<ASEGameMode>())
+	{
+		GM->SetFloorState(InFloor, bIsOpened);
 	}
 }

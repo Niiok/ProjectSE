@@ -3,13 +3,15 @@
 
 #include "SECharacter.h"
 
+#include "InteractionComponent.h"
+#include "SEPlayerController.h"
+
 
 // Sets default values
 ASECharacter::ASECharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 // Called when the game starts or when spawned
@@ -19,17 +21,62 @@ void ASECharacter::BeginPlay()
 	
 }
 
-// Called every frame
-void ASECharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
+class UInteractionComponent* ASECharacter::GetFocusingComponent() const
+{
+	ASEPlayerController* PC = GetController<ASEPlayerController>();
+
+	return PC ? PC->GetFocusingInteraction() : nullptr;
 }
 
-// Called to bind functionality to input
-void ASECharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASECharacter::TryInteract()
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	UInteractionComponent* Focusing = GetFocusingComponent();
 
+	if (Focusing && Focusing->IsInteractable(this))
+	{
+		Focusing->Interact(this);
+	}
 }
 
+void ASECharacter::TryHoldOrUnhold()
+{
+	if (CurrentHolding.IsValid())
+	{
+		UnHold();
+	}
+	else
+	{
+		Hold(GetFocusingComponent());
+	}
+}
+
+void ASECharacter::TryUse()
+{
+	if (CurrentHolding.IsValid() && CurrentHolding->IsUsable(this))
+	{
+		CurrentHolding->Use(this);
+	}
+}
+
+bool ASECharacter::Hold(class UInteractionComponent* InComponent)
+{
+	if (InComponent && InComponent->IsHoldable(this))
+	{
+		InComponent->Hold(this);
+		CurrentHolding = InComponent;
+		return true;
+	}
+	return false;
+}
+
+bool ASECharacter::UnHold()
+{
+	if (CurrentHolding.IsValid() && CurrentHolding->IsUnholdable(this))
+	{
+		CurrentHolding->UnHold(this);
+		CurrentHolding.Reset();
+		return true;
+	}
+	return false;
+}

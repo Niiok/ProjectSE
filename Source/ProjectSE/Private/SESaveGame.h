@@ -15,19 +15,16 @@ class USESaveGame : public USaveGame
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintPure)
 	bool IsFloorOpened(uint8 InFloor) const;
+	uint64 GetOpenedFloors() const { return OpenedFloors; }
 
-	UFUNCTION(BlueprintCallable)
-	bool SetFloorOpened(uint8 InFloor);
-	UFUNCTION(BlueprintCallable)
-	bool SetFloorClosed(uint8 InFloor);
+	bool SetFloorState(uint8 InFloor, bool bIsOpend);
 
 protected:
-	UPROPERTY(VisibleAnywhere)
-	FString SaveSlotName;
-	UPROPERTY(VisibleAnywhere)
-	uint32 UserIndex;
+	//UPROPERTY(VisibleAnywhere)
+	//FString SaveSlotName;
+	//UPROPERTY(VisibleAnywhere)
+	//uint32 UserIndex;
 
 	UPROPERTY()
 	uint64 OpenedFloors;
