@@ -3,7 +3,6 @@
 
 #include "SEGameMode.h"
 
-#include "Elevator.h"
 #include "Engine/SoftWorldReference.h"
 #include "Kismet/GameplayStatics.h"
 #include "SEGameState.h"
@@ -72,7 +71,9 @@ bool ASEGameMode::IsChangingFloor() const
 
 void ASEGameMode::ChangeFloor(const struct FSoftWorldReference& InWorld)
 {
-	if (IsChangingFloor() || ElevatorActor.IsValid() == false || ElevatorActor->IsClosed() == false)
+	ASEGameState* GS = GetGameState<ASEGameState>();
+
+	if (IsChangingFloor() || GS == nullptr || GS->IsElevatorReady() == false)
 	{
 		return;
 	}
@@ -80,9 +81,21 @@ void ASEGameMode::ChangeFloor(const struct FSoftWorldReference& InWorld)
 	LoadingFloor = InWorld.WorldAsset.ToSoftObjectPath();
 	UnloadingFloor = CurrentFloor;
 
-	if (IsChangingFloor())
+	if (LoadingFloor.GetAssetFName() == UnloadingFloor.GetAssetFName())
+	{
+		LoadingFloor.Reset();
+		UnloadingFloor.Reset();
+		OnFloorChanged();
+		return;
+	}
+
+	if (UnloadingFloor.IsNull() == false)
 	{
 		UGameplayStatics::UnloadStreamLevel(this, UnloadingFloor.GetLongPackageFName(), FLatentActionInfo(), false);
+	}
+	else if (LoadingFloor.IsNull() == false)
+	{
+		UGameplayStatics::LoadStreamLevel(this, LoadingFloor.GetLongPackageFName(), true, false, FLatentActionInfo());
 	}
 }
 
@@ -94,11 +107,6 @@ void ASEGameMode::ChangeFloor(uint8 InFloor)
 	}
 }
 
-void ASEGameMode::RegisterElevator(class AElevator* InElevator)
-{
-	ElevatorActor = InElevator;
-}
-
 class USESaveGame* ASEGameMode::GetSaveGame() const
 {
 	if (SaveGame == nullptr)
@@ -107,7 +115,7 @@ class USESaveGame* ASEGameMode::GetSaveGame() const
 		{
 			SaveGame = Cast<USESaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlot, SaveIndex));
 		}
-		
+
 		if (SaveGame == nullptr)
 		{
 			SaveGame = Cast<USESaveGame>(UGameplayStatics::CreateSaveGameObject(USESaveGame::StaticClass()));
@@ -139,7 +147,6 @@ void ASEGameMode::InitializeCurrentFloor()
 		}
 	}
 }
-
 
 void ASEGameMode::OnLevelRemoved(class ULevel* InLevel, class UWorld* InWorld)
 {
@@ -179,8 +186,8 @@ void ASEGameMode::OnLevelAdded(class ULevel* InLevel, class UWorld* InWorld)
 
 void ASEGameMode::OnFloorChanged()
 {
-	if (ElevatorActor.IsValid())
+	if (ASEGameState* GS = GetGameState<ASEGameState>())
 	{
-		ElevatorActor->OpenDoor();
+		GS->Multicast_OpenElevator();
 	}
 }

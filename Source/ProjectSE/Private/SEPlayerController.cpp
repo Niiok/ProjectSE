@@ -42,19 +42,3 @@ void ASEPlayerController::TickActor(float DeltaTime, enum ELevelTick TickType, F
 		}
 	}
 }
-
-void ASEPlayerController::ServerChangeFloor_Implementation(uint8 InFloor)
-{
-	if (ASEGameMode* GM = GetWorld()->GetAuthGameMode<ASEGameMode>())
-	{
-		GM->ChangeFloor(InFloor);
-	}
-}
-
-void ASEPlayerController::ServerSetFloorState_Implementation(uint8 InFloor, bool bIsOpened)
-{
-	if (ASEGameMode* GM = GetWorld()->GetAuthGameMode<ASEGameMode>())
-	{
-		GM->SetFloorState(InFloor, bIsOpened);
-	}
-}

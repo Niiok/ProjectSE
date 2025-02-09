@@ -4,23 +4,24 @@
 #include "SECharacter.h"
 
 #include "InteractionComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "SEPlayerController.h"
 
 
 // Sets default values
 ASECharacter::ASECharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
-void ASECharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
 
+void ASECharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASECharacter, CurrentHolding);
+}
 
 class UInteractionComponent* ASECharacter::GetFocusingComponent() const
 {
@@ -31,52 +32,93 @@ class UInteractionComponent* ASECharacter::GetFocusingComponent() const
 
 void ASECharacter::TryInteract()
 {
-	UInteractionComponent* Focusing = GetFocusingComponent();
+	UInteractionComponent* CurrentFocusing = GetFocusingComponent();
 
-	if (Focusing && Focusing->IsInteractable(this))
+	if (CurrentFocusing && CurrentFocusing->IsInteractable(this))
 	{
-		Focusing->Interact(this);
+		Server_Interact(CurrentFocusing);
 	}
 }
 
 void ASECharacter::TryHoldOrUnhold()
 {
-	if (CurrentHolding.IsValid())
+	if (CurrentHolding && CurrentHolding->IsUnHoldable(this))
 	{
-		UnHold();
+		Server_UnHold(CurrentHolding);
 	}
 	else
 	{
-		Hold(GetFocusingComponent());
+		UInteractionComponent* CurrentFocusing = GetFocusingComponent();
+
+		if (CurrentFocusing && CurrentFocusing->IsHoldable(this))
+		{
+			Server_Hold(CurrentFocusing);
+		}
 	}
 }
 
 void ASECharacter::TryUse()
 {
-	if (CurrentHolding.IsValid() && CurrentHolding->IsUsable(this))
+	if (CurrentHolding && CurrentHolding->IsUsable(this))
 	{
-		CurrentHolding->Use(this);
+		Server_Use(CurrentHolding);
 	}
 }
 
-bool ASECharacter::Hold(class UInteractionComponent* InComponent)
+void ASECharacter::Server_Interact_Implementation(class UInteractionComponent* InComponent)
+{
+	if (InComponent && InComponent->IsInteractable(this))
+	{
+		InComponent->Auth_Interact(this);
+	}
+}
+
+void ASECharacter::Server_Hold_Implementation(class UInteractionComponent* InComponent)
 {
 	if (InComponent && InComponent->IsHoldable(this))
 	{
-		InComponent->Hold(this);
-		CurrentHolding = InComponent;
-		return true;
+		InComponent->Auth_Hold(this);
 	}
-	return false;
 }
 
-bool ASECharacter::UnHold()
+void ASECharacter::Server_UnHold_Implementation(class UInteractionComponent* InComponent)
 {
-	if (CurrentHolding.IsValid() && CurrentHolding->IsUnholdable(this))
+	if (InComponent && InComponent->IsUnHoldable(this))
 	{
-		CurrentHolding->UnHold(this);
-		CurrentHolding.Reset();
-		return true;
+		InComponent->Auth_UnHold(this);
 	}
-	return false;
+}
+
+void ASECharacter::Server_Use_Implementation(class UInteractionComponent* InComponent)
+{
+	if (InComponent && InComponent->IsUsable(this))
+	{
+		InComponent->Auth_Use(this);
+	}
+}
+
+void ASECharacter::Auth_SetCurrentHolding(class UInteractionComponent* InComonent)
+{
+	UInteractionComponent* OldHolding = CurrentHolding;
+	CurrentHolding = InComonent;
+	OnRep_CurrentHolding(OldHolding);
+}
+
+void ASECharacter::OnRep_CurrentHolding(class UInteractionComponent* CurrentHolding_Old)
+{
+	if (CurrentHolding_Old)
+	{
+		FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
+		CurrentHolding_Old->DetachFromComponent(DetachRule);
+	}
+
+	if (CurrentHolding)
+	{
+		if (auto MeshComponent = GetMesh())
+		{
+			static const FName HoldSocket = TEXT("hand_r");
+			FAttachmentTransformRules AttachRule(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, true);
+			CurrentHolding->AttachToComponent(MeshComponent, AttachRule, HoldSocket);
+		}
+	}
 }

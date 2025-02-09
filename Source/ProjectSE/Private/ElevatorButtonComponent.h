@@ -15,12 +15,10 @@ class UElevatorButtonComponent : public UInteractionComponent
 	GENERATED_BODY()
 
 public:
-	virtual void OnComponentCreated() override;
-
 	virtual bool IsInteractable(class ASECharacter* InInteractor) const override { return bIsDropped == false && bIsFloorOpened; }
 	virtual bool IsHoldable(class ASECharacter* InHolder) const override { return bIsDropped; }
-	virtual bool IsUnholdable(class ASECharacter* InUnHolder) const override { return bIsDropped; }
-	virtual void Interact(class ASECharacter* InInteractor) override;
+	virtual bool IsUnHoldable(class ASECharacter* InUnHolder) const override { return bIsDropped; }
+	virtual void Auth_Interact(class ASECharacter* InInteractor) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,16 +29,10 @@ public:
 
 protected:
 	void OnFloorStateChanged(uint8 InFloor, bool bIsOpened);
+	void AdjustText();
 
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UTextRenderComponent* NumberComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FTransform NumberTransform;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	int32 NumberSize = 16;
-
 	UPROPERTY(EditAnywhere)
 	uint8 FloorNumber = UINT8_MAX;
 

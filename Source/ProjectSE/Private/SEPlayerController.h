@@ -19,11 +19,6 @@ public:
 
 
 public:
-	UFUNCTION(Server, Unreliable)
-	void ServerChangeFloor(uint8 InFloor);
-	UFUNCTION(Server, Unreliable)
-	void ServerSetFloorState(uint8 InFloor, bool bIsOpened);
-
 	class UInteractionComponent* GetFocusingInteraction() const { return FocusingInteraction.Get(); }
 
 

@@ -36,8 +36,6 @@ public:
 	void ChangeFloor(const struct FSoftWorldReference& InWorld);
 	void ChangeFloor(uint8 InFloor);
 
-	void RegisterElevator(class AElevator* InElevator);
-
 protected:
 	class USESaveGame* GetSaveGame() const;
 	void Save();
@@ -60,5 +58,4 @@ protected:
 	FSoftObjectPath CurrentFloor;
 	FSoftObjectPath UnloadingFloor;
 	FSoftObjectPath LoadingFloor;
-	TWeakObjectPtr<class AElevator> ElevatorActor;
 };

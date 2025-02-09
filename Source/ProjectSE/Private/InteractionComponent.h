@@ -21,17 +21,15 @@ class UInteractionComponent : public UStaticMeshComponent
 	GENERATED_BODY()
 
 public:
-	static const FName HoldSocket;
-
 	virtual bool IsInteractable(class ASECharacter* InInteractor) const { return true; }
 	virtual bool IsHoldable(class ASECharacter* InHolder) const { return false; }
-	virtual bool IsUnholdable(class ASECharacter* InUnHolder) const { return false; }
+	virtual bool IsUnHoldable(class ASECharacter* InUnHolder) const { return false; }
 	virtual bool IsUsable(class ASECharacter* InUser) const { return false; }
 
-	virtual void Interact(class ASECharacter* InInteractor);
-	virtual void Hold(class ASECharacter* InHolder);
-	virtual void UnHold(class ASECharacter* InUnHolder);
-	virtual void Use(class ASECharacter* InUser);
+	virtual void Auth_Interact(class ASECharacter* InInteractor);
+	virtual void Auth_Hold(class ASECharacter* InHolder);
+	virtual void Auth_UnHold(class ASECharacter* InUnHolder);
+	virtual void Auth_Use(class ASECharacter* InUser);
 
 	virtual void OnFocusedIn(class ASEPlayerController* InPlayerController);
 	virtual void OnFocusedOut(class ASEPlayerController* InPlayerController);

@@ -3,7 +3,7 @@
 
 #include "Elevator.h"
 
-#include "SEGameMode.h"
+#include "SEGameState.h"
 
 
 // Sets default values
@@ -19,9 +19,9 @@ void AElevator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (ASEGameMode* GM = GetWorld()->GetAuthGameMode<ASEGameMode>())
+	if (ASEGameState* GS = GetWorld()->GetGameState<ASEGameState>())
 	{
-		GM->RegisterElevator(this);
+		GS->RegisterElevator(this);
 	}
 }
 

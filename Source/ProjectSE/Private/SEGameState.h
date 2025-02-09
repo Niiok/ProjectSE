@@ -27,6 +27,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsFloorOpened(uint8 InFloor) const;
 
+	void RegisterElevator(class AElevator* InElevator);
+	bool IsElevatorReady() const;
+
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
+	void Multicast_OpenElevator();
+
 protected:
 	UFUNCTION()
 	void OnRep_OpenedFloors(uint64 OpenedFloors_Old);
@@ -36,6 +42,8 @@ public:
 	FOnFloorStateChanged OnFloorStateChanged;
 
 protected:
-	UPROPERTY(ReplicatedUsing=OnRep_OpenedFloors)
+	UPROPERTY(ReplicatedUsing = OnRep_OpenedFloors)
 	uint64 OpenedFloors;
+
+	TWeakObjectPtr<class AElevator> ElevatorActor;
 };

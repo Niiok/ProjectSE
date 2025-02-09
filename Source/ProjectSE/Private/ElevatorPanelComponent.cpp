@@ -5,29 +5,29 @@
 
 #include "ElevatorButtonComponent.h"
 #include "SECharacter.h"
-#include "SEPlayerController.h"
+#include "SEGameMode.h"
 
 
 
 
 bool UElevatorPanelComponent::IsInteractable(class ASECharacter* InInteractor) const
 {
-	if (UInteractionComponent* Holding = InInteractor ? InInteractor->GetHolding() : nullptr)
+	if (UInteractionComponent* Holding = InInteractor ? InInteractor->GetHoldingComponent() : nullptr)
 	{
 		return Holding->IsA<UElevatorButtonComponent>();
 	}
 	return false;
 }
 
-void UElevatorPanelComponent::Interact(class ASECharacter* InInteractor)
+void UElevatorPanelComponent::Auth_Interact(class ASECharacter* InInteractor)
 {
-	Super::Interact(InInteractor);
+	Super::Auth_Interact(InInteractor);
+	
+	ASEGameMode* GM = GetWorld()->GetAuthGameMode<ASEGameMode>();
+	UElevatorButtonComponent* Button = InInteractor ? Cast<UElevatorButtonComponent>(InInteractor->GetHoldingComponent()) : nullptr;
 
-	ASEPlayerController* PC = InInteractor ? InInteractor->GetController<ASEPlayerController>() : nullptr;
-	UElevatorButtonComponent* Button = InInteractor ? Cast<UElevatorButtonComponent>(InInteractor->GetHolding()) : nullptr;
-
-	if (PC && Button)
+	if (GM && Button)
 	{
-		PC->ServerSetFloorState(Button->GetFloorNumber(), true);
+		GM->SetFloorState(Button->GetFloorNumber(), true);
 	}
 }

@@ -2,6 +2,9 @@
 
 
 #include "SEGameState.h"
+
+#include "GameFramework/Character.h"
+#include "Elevator.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -17,6 +20,24 @@ void ASEGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 bool ASEGameState::IsFloorOpened(uint8 InFloor) const
 {
 	return OpenedFloors & (1ll << InFloor);
+}
+
+void ASEGameState::RegisterElevator(class AElevator* InElevator)
+{
+	ElevatorActor = InElevator;
+}
+
+bool ASEGameState::IsElevatorReady() const
+{
+	return ElevatorActor.IsValid() && ElevatorActor->IsClosed();
+}
+
+void ASEGameState::Multicast_OpenElevator_Implementation()
+{
+	if (ElevatorActor.IsValid())
+	{
+		ElevatorActor->OpenDoor();
+	}
 }
 
 void ASEGameState::OnRep_OpenedFloors(uint64 OpenedFloors_Old)

@@ -6,38 +6,19 @@
 #include "Components/TextRenderComponent.h"
 #include "Elevator.h"
 #include "SECharacter.h"
+#include "SEGameMode.h"
 #include "SEGameState.h"
-#include "SEPlayerController.h"
 
 
 
 
-void UElevatorButtonComponent::OnComponentCreated()
+void UElevatorButtonComponent::Auth_Interact(class ASECharacter* InInteractor)
 {
-	Super::OnComponentCreated();
-	
-	if (AActor* Owner = GetOwner())
-	{
-		NumberComponent = Cast<UTextRenderComponent>(GetOwner()->AddComponentByClass(UTextRenderComponent::StaticClass(), false, NumberTransform, false));
-		if (Owner->GetRootComponent() == NumberComponent)
-		{
-			Owner->SetRootComponent(this);
-		}
-		NumberComponent->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, true));
-		NumberComponent->SetText(FText::AsNumber(FloorNumber));
-		NumberComponent->SetHorizontalAlignment(EHTA_Center);
-		NumberComponent->SetVerticalAlignment(EVRTA_TextCenter);
-		NumberComponent->SetWorldSize(NumberSize);
-	}
-}
+	Super::Auth_Interact(InInteractor);
 
-void UElevatorButtonComponent::Interact(class ASECharacter* InInteractor)
-{
-	Super::Interact(InInteractor);
-
-	if (ASEPlayerController* PC = InInteractor ? InInteractor->GetController<ASEPlayerController>() : nullptr)
+	if (ASEGameMode* GM = GetWorld()->GetAuthGameMode<ASEGameMode>())
 	{
-		PC->ServerChangeFloor(FloorNumber);
+		GM->ChangeFloor(FloorNumber);
 	}
 }
 
@@ -66,5 +47,19 @@ void UElevatorButtonComponent::OnFloorStateChanged(uint8 InFloor, bool bIsOpened
 		{
 			GetOwner()->Destroy();
 		}
+
+		AdjustText();
+	}
+}
+
+void UElevatorButtonComponent::AdjustText()
+{
+	UTextRenderComponent* NumberComponent;
+	if (GetAttachChildren().FindItemByClass<UTextRenderComponent>(&NumberComponent))
+	{
+		NumberComponent->SetText(FText::AsNumber(FloorNumber));
+		NumberComponent->SetHorizontalAlignment(EHTA_Center);
+		NumberComponent->SetVerticalAlignment(EVRTA_TextCenter);
+		NumberComponent->SetVisibility(GetVisibleFlag());
 	}
 }

@@ -14,26 +14,38 @@ class ASECharacter : public ACharacter
 protected:
 	ASECharacter();
 
-protected:
-	virtual void BeginPlay() override;
+public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	
+
 public:
 	class UInteractionComponent* GetFocusingComponent() const;
+	class UInteractionComponent* GetHoldingComponent() const { return CurrentHolding; }
 
 	UFUNCTION(BlueprintCallable)
 	void TryInteract();
-	
 	UFUNCTION(BlueprintCallable)
 	void TryHoldOrUnhold();
-	
 	UFUNCTION(BlueprintCallable)
 	void TryUse();
 
-	class UInteractionComponent* GetHolding() const { return CurrentHolding.Get(); }
-	bool Hold(class UInteractionComponent* InComponent);
-	bool UnHold();
+	UFUNCTION(Server, Unreliable)
+	void Server_Interact(class UInteractionComponent* InComponent);
+	UFUNCTION(Server, Unreliable)
+	void Server_Hold(class UInteractionComponent* InComponent);
+	UFUNCTION(Server, Unreliable)
+	void Server_UnHold(class UInteractionComponent* InComponent);
+	UFUNCTION(Server, Unreliable)
+	void Server_Use(class UInteractionComponent* InComponent);
+
+	void Auth_SetCurrentHolding(class UInteractionComponent* InComonent);
 
 protected:
-	TWeakObjectPtr<class UInteractionComponent> CurrentHolding;
+	UFUNCTION()
+	void OnRep_CurrentHolding(class UInteractionComponent* CurrentHolding_Old);
+
+
+protected:
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHolding)
+	class UInteractionComponent* CurrentHolding;
 };
