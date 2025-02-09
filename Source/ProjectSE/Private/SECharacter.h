@@ -29,8 +29,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void TryUse();
 
-	UFUNCTION(Server, Unreliable)
-	void Server_Interact(class UInteractionComponent* InComponent);
+	UFUNCTION(Server, Reliable)
+	void Server_Interact(class UInteractionComponent* InComponent, int64 InParam);
+	UFUNCTION(Client, Reliable)
+	void Client_Interact(class UInteractionComponent* InComponent, int64 InParam);
 	UFUNCTION(Server, Unreliable)
 	void Server_Hold(class UInteractionComponent* InComponent);
 	UFUNCTION(Server, Unreliable)

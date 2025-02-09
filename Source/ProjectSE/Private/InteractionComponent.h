@@ -7,10 +7,9 @@
 #include "InteractionComponent.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FComponentOnInteractSignature, UInteractionComponent, OnInteract, class ASECharacter*, InCharacter);
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FComponentOnHoldSignature, UInteractionComponent, OnHold, class ASECharacter*, InCharacter);
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FComponentOnUnholdSignature, UInteractionComponent, OnUnhold, class ASECharacter*, InCharacter);
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FComponentOnUseSignature, UInteractionComponent, OnUse, class ASECharacter*, InCharacter);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_TwoParams(FComponentAuthOnInteractSignature, UInteractionComponent, Auth_OnInteract, class ASECharacter*, InCharacter, int64, InParam);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_TwoParams(FComponentLocalOnInteractSignature, UInteractionComponent, Local_OnInteract, class ASECharacter*, InCharacter, int64, InParam);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FComponentAuthOnUseSignature, UInteractionComponent, Auth_OnUse, class ASECharacter*, InCharacter);
 
 /**
  * 
@@ -21,12 +20,21 @@ class UInteractionComponent : public UStaticMeshComponent
 	GENERATED_BODY()
 
 public:
+	enum 
+	{
+		Param_Start = 0,
+		Param_End = 0,
+		Param_Null = INDEX_NONE
+	};
+
+public:
 	virtual bool IsInteractable(class ASECharacter* InInteractor) const { return true; }
 	virtual bool IsHoldable(class ASECharacter* InHolder) const { return false; }
 	virtual bool IsUnHoldable(class ASECharacter* InUnHolder) const { return false; }
 	virtual bool IsUsable(class ASECharacter* InUser) const { return false; }
 
-	virtual void Auth_Interact(class ASECharacter* InInteractor);
+	virtual int64 Auth_Interact(class ASECharacter* InInteractor, int64 InParam);
+	virtual int64 Local_Interact(class ASECharacter* InInteractor, int64 InParam);
 	virtual void Auth_Hold(class ASECharacter* InHolder);
 	virtual void Auth_UnHold(class ASECharacter* InUnHolder);
 	virtual void Auth_Use(class ASECharacter* InUser);
@@ -37,13 +45,11 @@ public:
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FComponentOnInteractSignature OnInteract;
+	FComponentAuthOnInteractSignature Auth_OnInteract;
 	UPROPERTY(BlueprintAssignable)
-	FComponentOnHoldSignature OnHold;
+	FComponentLocalOnInteractSignature Local_OnInteract;
 	UPROPERTY(BlueprintAssignable)
-	FComponentOnUnholdSignature OnUnhold;
-	UPROPERTY(BlueprintAssignable)
-	FComponentOnUseSignature OnUse;
+	FComponentAuthOnUseSignature Auth_OnUse;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

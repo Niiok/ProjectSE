@@ -19,9 +19,9 @@ bool UElevatorPanelComponent::IsInteractable(class ASECharacter* InInteractor) c
 	return false;
 }
 
-void UElevatorPanelComponent::Auth_Interact(class ASECharacter* InInteractor)
+int64 UElevatorPanelComponent::Auth_Interact(class ASECharacter* InInteractor, int64 InParam)
 {
-	Super::Auth_Interact(InInteractor);
+	Super::Auth_Interact(InInteractor, InParam);
 	
 	ASEGameMode* GM = GetWorld()->GetAuthGameMode<ASEGameMode>();
 	UElevatorButtonComponent* Button = InInteractor ? Cast<UElevatorButtonComponent>(InInteractor->GetHoldingComponent()) : nullptr;
@@ -30,4 +30,6 @@ void UElevatorPanelComponent::Auth_Interact(class ASECharacter* InInteractor)
 	{
 		GM->SetFloorState(Button->GetFloorNumber(), true);
 	}
+
+	return Param_End;
 }

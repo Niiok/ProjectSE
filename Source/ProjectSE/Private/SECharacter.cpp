@@ -36,7 +36,7 @@ void ASECharacter::TryInteract()
 
 	if (CurrentFocusing && CurrentFocusing->IsInteractable(this))
 	{
-		Server_Interact(CurrentFocusing);
+		Server_Interact(CurrentFocusing, UInteractionComponent::Param_Start);
 	}
 }
 
@@ -65,11 +65,27 @@ void ASECharacter::TryUse()
 	}
 }
 
-void ASECharacter::Server_Interact_Implementation(class UInteractionComponent* InComponent)
+void ASECharacter::Server_Interact_Implementation(class UInteractionComponent* InComponent, int64 InParam)
 {
 	if (InComponent && InComponent->IsInteractable(this))
 	{
-		InComponent->Auth_Interact(this);
+		int64 ReturnCode = InComponent->Auth_Interact(this, InParam);
+		if (ReturnCode != UInteractionComponent::Param_Null)
+		{
+			Client_Interact(InComponent, ReturnCode);
+		}
+	}
+}
+
+void ASECharacter::Client_Interact_Implementation(class UInteractionComponent* InComponent, int64 InParam)
+{
+	if (InComponent && InComponent->IsInteractable(this))
+	{
+		int64 ReturnCode = InComponent->Local_Interact(this, InParam);
+		if (ReturnCode != UInteractionComponent::Param_Null)
+		{
+			Server_Interact(InComponent, ReturnCode);
+		}
 	}
 }
 

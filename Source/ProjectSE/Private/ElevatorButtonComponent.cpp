@@ -12,14 +12,16 @@
 
 
 
-void UElevatorButtonComponent::Auth_Interact(class ASECharacter* InInteractor)
+int64 UElevatorButtonComponent::Auth_Interact(class ASECharacter* InInteractor, int64 InParam)
 {
-	Super::Auth_Interact(InInteractor);
+	Super::Auth_Interact(InInteractor, InParam);
 
 	if (ASEGameMode* GM = GetWorld()->GetAuthGameMode<ASEGameMode>())
 	{
 		GM->ChangeFloor(FloorNumber);
 	}
+
+	return Param_End;
 }
 
 void UElevatorButtonComponent::BeginPlay()
@@ -39,6 +41,8 @@ void UElevatorButtonComponent::OnFloorStateChanged(uint8 InFloor, bool bIsOpened
 	{
 		bIsFloorOpened = bIsOpened;
 
+		AdjustText();
+
 		if (bIsDropped == false)
 		{
 			SetVisibility(bIsFloorOpened);
@@ -47,8 +51,6 @@ void UElevatorButtonComponent::OnFloorStateChanged(uint8 InFloor, bool bIsOpened
 		{
 			GetOwner()->Destroy();
 		}
-
-		AdjustText();
 	}
 }
 

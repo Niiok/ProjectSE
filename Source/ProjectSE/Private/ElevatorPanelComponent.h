@@ -16,6 +16,6 @@ class UElevatorPanelComponent : public UInteractionComponent
 	
 public:
 	virtual bool IsInteractable(class ASECharacter* InInteractor) const override;
-	virtual void Auth_Interact(class ASECharacter* InInteractor) override;
+	virtual int64 Auth_Interact(class ASECharacter* InInteractor, int64 InParam) override;
 
 };

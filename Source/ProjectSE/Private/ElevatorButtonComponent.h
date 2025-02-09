@@ -18,7 +18,7 @@ public:
 	virtual bool IsInteractable(class ASECharacter* InInteractor) const override { return bIsDropped == false && bIsFloorOpened; }
 	virtual bool IsHoldable(class ASECharacter* InHolder) const override { return bIsDropped; }
 	virtual bool IsUnHoldable(class ASECharacter* InUnHolder) const override { return bIsDropped; }
-	virtual void Auth_Interact(class ASECharacter* InInteractor) override;
+	virtual int64 Auth_Interact(class ASECharacter* InInteractor, int64 InParam) override;
 
 protected:
 	virtual void BeginPlay() override;

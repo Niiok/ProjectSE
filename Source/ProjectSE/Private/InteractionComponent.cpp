@@ -9,21 +9,28 @@
 
 
 
-void UInteractionComponent::Auth_Interact(class ASECharacter* InInteractor)
+int64 UInteractionComponent::Auth_Interact(class ASECharacter* InInteractor, int64 InParam)
 {
 	if (IsValid(this))
 	{
-		OnInteract.Broadcast(InInteractor);
+		Auth_OnInteract.Broadcast(InInteractor, InParam);
 	}
+
+	return Param_End;
+}
+
+int64 UInteractionComponent::Local_Interact(class ASECharacter* InInteractor, int64 InParam)
+{
+	if (IsValid(this))
+	{
+		Local_OnInteract.Broadcast(InInteractor, InParam);
+	}
+
+	return Param_Null;
 }
 
 void UInteractionComponent::Auth_Hold(class ASECharacter* InHolder)
 {
-	if (IsValid(this))
-	{
-		OnHold.Broadcast(InHolder);
-	}
-
 	if (InHolder)
 	{
 		InHolder->Auth_SetCurrentHolding(this);
@@ -32,11 +39,6 @@ void UInteractionComponent::Auth_Hold(class ASECharacter* InHolder)
 
 void UInteractionComponent::Auth_UnHold(class ASECharacter* InUnHolder)
 {
-	if (IsValid(this))
-	{
-		OnUnhold.Broadcast(InUnHolder);
-	}
-
 	if (InUnHolder && InUnHolder->GetHoldingComponent() == this)
 	{
 		InUnHolder->Auth_SetCurrentHolding(nullptr);
@@ -47,7 +49,7 @@ void UInteractionComponent::Auth_Use(class ASECharacter* InUser)
 {
 	if (IsValid(this))
 	{
-		OnUse.Broadcast(InUser);
+		Auth_OnUse.Broadcast(InUser);
 	}
 }
 
