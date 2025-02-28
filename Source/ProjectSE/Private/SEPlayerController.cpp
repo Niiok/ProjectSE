@@ -3,7 +3,7 @@
 
 #include "SEPlayerController.h"
 
-#include "InteractionComponent.h"
+#include "Interaction/InteractionComponent.h"
 #include "SECharacter.h"
 #include "SEGameMode.h"
 

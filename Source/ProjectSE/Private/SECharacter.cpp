@@ -3,7 +3,7 @@
 
 #include "SECharacter.h"
 
-#include "InteractionComponent.h"
+#include "Interaction/InteractionComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "SEPlayerController.h"
 
