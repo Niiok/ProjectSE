@@ -28,3 +28,19 @@ bool USESaveGame::SetFloorState(uint8 InFloor, bool bIsOpend)
 
 	return false;
 }
+
+
+int64 USESaveGame::GetInteractionState(const FSoftObjectPath& InPath) const
+{
+	if (auto Findee = InteractionStates.Find(InPath))
+	{
+		return *Findee;
+	}
+
+	return 0;
+}
+
+void USESaveGame::SetInteractionState(const FSoftObjectPath& InPath, int64 InState)
+{
+	InteractionStates.FindOrAdd(InPath) = InState;
+}

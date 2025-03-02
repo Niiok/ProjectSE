@@ -6,6 +6,7 @@
 #include "GameFramework/SaveGame.h"
 #include "SESaveGame.generated.h"
 
+
 /**
  * 
  */
@@ -20,6 +21,9 @@ public:
 
 	bool SetFloorState(uint8 InFloor, bool bIsOpend);
 
+	int64 GetInteractionState(const FSoftObjectPath& InPath) const;
+	void SetInteractionState(const FSoftObjectPath& InPath, int64 InState);
+
 protected:
 	//UPROPERTY(VisibleAnywhere)
 	//FString SaveSlotName;
@@ -28,4 +32,7 @@ protected:
 
 	UPROPERTY()
 	uint64 OpenedFloors;
+
+	UPROPERTY()
+	TMap<FSoftObjectPath, int64> InteractionStates;
 };

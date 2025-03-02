@@ -4,6 +4,7 @@
 #include "SEGameMode.h"
 
 #include "Engine/SoftWorldReference.h"
+#include "Interaction/StatefulInteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "SEGameState.h"
 #include "SESaveGame.h"
@@ -104,6 +105,23 @@ void ASEGameMode::ChangeFloor(uint8 InFloor)
 	if (const struct FSoftWorldReference* Findee = FloorToLevel.Find(InFloor))
 	{
 		ChangeFloor(*Findee);
+	}
+}
+
+int64 ASEGameMode::GetInteractionState(const FSoftObjectPath& InPath) const
+{
+	return GetSaveGame()->GetInteractionState(InPath);
+}
+
+void ASEGameMode::SetInteractionState(class UStatefulInteractionComponent* InComponent, int64 InState)
+{
+	if (InComponent)
+	{
+		if (InComponent->IsSavingState())
+		{
+			GetSaveGame()->SetInteractionState(FSoftObjectPath(InComponent), InState);
+		}
+		InComponent->SetState(InState);
 	}
 }
 

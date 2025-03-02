@@ -36,6 +36,9 @@ public:
 	void ChangeFloor(const struct FSoftWorldReference& InWorld);
 	void ChangeFloor(uint8 InFloor);
 
+	int64 GetInteractionState(const FSoftObjectPath& InPath) const;
+	void SetInteractionState(class UStatefulInteractionComponent* InComponent, int64 InState);
+
 protected:
 	class USESaveGame* GetSaveGame() const;
 	void Save();
