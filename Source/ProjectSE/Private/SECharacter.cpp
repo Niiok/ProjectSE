@@ -27,14 +27,14 @@ class UInteractionComponent* ASECharacter::GetFocusingComponent() const
 {
 	ASEPlayerController* PC = GetController<ASEPlayerController>();
 
-	return PC ? PC->GetFocusingInteraction() : nullptr;
+	return IsValid(PC) ? PC->GetFocusingInteraction() : nullptr;
 }
 
 void ASECharacter::TryInteract()
 {
 	UInteractionComponent* CurrentFocusing = GetFocusingComponent();
 
-	if (CurrentFocusing && CurrentFocusing->IsInteractable(this))
+	if (IsValid(CurrentFocusing) && CurrentFocusing->IsInteractable(this))
 	{
 		Server_Interact(CurrentFocusing, UInteractionComponent::Param_Start);
 	}
@@ -42,7 +42,7 @@ void ASECharacter::TryInteract()
 
 void ASECharacter::TryHoldOrUnhold()
 {
-	if (CurrentHolding && CurrentHolding->IsUnHoldable(this))
+	if (IsValid(CurrentHolding) && CurrentHolding->IsUnHoldable(this))
 	{
 		Server_UnHold(CurrentHolding);
 	}
@@ -50,7 +50,7 @@ void ASECharacter::TryHoldOrUnhold()
 	{
 		UInteractionComponent* CurrentFocusing = GetFocusingComponent();
 
-		if (CurrentFocusing && CurrentFocusing->IsHoldable(this))
+		if (IsValid(CurrentFocusing) && CurrentFocusing->IsHoldable(this))
 		{
 			Server_Hold(CurrentFocusing);
 		}
@@ -59,7 +59,7 @@ void ASECharacter::TryHoldOrUnhold()
 
 void ASECharacter::TryUse()
 {
-	if (CurrentHolding && CurrentHolding->IsUsable(this))
+	if (IsValid(CurrentHolding) && CurrentHolding->IsUsable(this))
 	{
 		Server_Use(CurrentHolding);
 	}
@@ -67,7 +67,7 @@ void ASECharacter::TryUse()
 
 void ASECharacter::Server_Interact_Implementation(class UInteractionComponent* InComponent, int64 InParam)
 {
-	if (InComponent && InComponent->IsInteractable(this))
+	if (IsValid(InComponent) && InComponent->IsInteractable(this))
 	{
 		int64 ReturnCode = InComponent->Auth_Interact(this, InParam);
 		if (ReturnCode != UInteractionComponent::Param_Null)
@@ -79,7 +79,7 @@ void ASECharacter::Server_Interact_Implementation(class UInteractionComponent* I
 
 void ASECharacter::Client_Interact_Implementation(class UInteractionComponent* InComponent, int64 InParam)
 {
-	if (InComponent && InComponent->IsInteractable(this))
+	if (IsValid(InComponent) && InComponent->IsInteractable(this))
 	{
 		int64 ReturnCode = InComponent->Local_Interact(this, InParam);
 		if (ReturnCode != UInteractionComponent::Param_Null)
@@ -91,7 +91,7 @@ void ASECharacter::Client_Interact_Implementation(class UInteractionComponent* I
 
 void ASECharacter::Server_Hold_Implementation(class UInteractionComponent* InComponent)
 {
-	if (InComponent && InComponent->IsHoldable(this))
+	if (IsValid(InComponent) && InComponent->IsHoldable(this))
 	{
 		InComponent->Auth_Hold(this);
 	}
@@ -99,7 +99,7 @@ void ASECharacter::Server_Hold_Implementation(class UInteractionComponent* InCom
 
 void ASECharacter::Server_UnHold_Implementation(class UInteractionComponent* InComponent)
 {
-	if (InComponent && InComponent->IsUnHoldable(this))
+	if (IsValid(InComponent) && InComponent->IsUnHoldable(this))
 	{
 		InComponent->Auth_UnHold(this);
 	}
@@ -107,7 +107,7 @@ void ASECharacter::Server_UnHold_Implementation(class UInteractionComponent* InC
 
 void ASECharacter::Server_Use_Implementation(class UInteractionComponent* InComponent)
 {
-	if (InComponent && InComponent->IsUsable(this))
+	if (IsValid(InComponent) && InComponent->IsUsable(this))
 	{
 		InComponent->Auth_Use(this);
 	}
@@ -122,13 +122,13 @@ void ASECharacter::Auth_SetCurrentHolding(class UInteractionComponent* InComonen
 
 void ASECharacter::OnRep_CurrentHolding(class UInteractionComponent* CurrentHolding_Old)
 {
-	if (CurrentHolding_Old)
+	if (IsValid(CurrentHolding_Old))
 	{
 		FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
 		CurrentHolding_Old->DetachFromComponent(DetachRule);
 	}
 
-	if (CurrentHolding)
+	if (IsValid(CurrentHolding))
 	{
 		if (auto MeshComponent = GetMesh())
 		{

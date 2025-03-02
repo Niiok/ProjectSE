@@ -115,7 +115,7 @@ int64 ASEGameMode::GetInteractionState(const FSoftObjectPath& InPath) const
 
 void ASEGameMode::SetInteractionState(class UStatefulInteractionComponent* InComponent, int64 InState)
 {
-	if (InComponent)
+	if (IsValid(InComponent))
 	{
 		if (InComponent->IsSavingState())
 		{
@@ -127,7 +127,7 @@ void ASEGameMode::SetInteractionState(class UStatefulInteractionComponent* InCom
 
 class USESaveGame* ASEGameMode::GetSaveGame() const
 {
-	if (SaveGame == nullptr)
+	if (IsValid(SaveGame) == false)
 	{
 		if (UGameplayStatics::DoesSaveGameExist(SaveSlot, SaveIndex))
 		{
@@ -141,14 +141,14 @@ class USESaveGame* ASEGameMode::GetSaveGame() const
 		}
 	}
 
-	check(SaveGame != nullptr);
+	check(IsValid(SaveGame));
 
 	return SaveGame;
 }
 
 void ASEGameMode::Save()
 {
-	if (SaveGame)
+	if (IsValid(SaveGame))
 	{
 		UGameplayStatics::SaveGameToSlot(SaveGame, SaveSlot, SaveIndex);
 	}

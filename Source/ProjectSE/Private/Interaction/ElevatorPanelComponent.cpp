@@ -12,7 +12,7 @@
 
 bool UElevatorPanelComponent::IsInteractable(class ASECharacter* InInteractor) const
 {
-	if (UInteractionComponent* Holding = InInteractor ? InInteractor->GetHoldingComponent() : nullptr)
+	if (UInteractionComponent* Holding = IsValid(InInteractor) ? InInteractor->GetHoldingComponent() : nullptr)
 	{
 		return Holding->IsA<UElevatorButtonComponent>();
 	}
@@ -24,9 +24,9 @@ int64 UElevatorPanelComponent::Auth_Interact(class ASECharacter* InInteractor, i
 	Super::Auth_Interact(InInteractor, InParam);
 	
 	ASEGameMode* GM = GetWorld()->GetAuthGameMode<ASEGameMode>();
-	UElevatorButtonComponent* Button = InInteractor ? Cast<UElevatorButtonComponent>(InInteractor->GetHoldingComponent()) : nullptr;
+	UElevatorButtonComponent* Button = IsValid(InInteractor) ? Cast<UElevatorButtonComponent>(InInteractor->GetHoldingComponent()) : nullptr;
 
-	if (GM && Button)
+	if (IsValid(GM) && IsValid(Button))
 	{
 		GM->SetFloorState(Button->GetFloorNumber(), true);
 	}

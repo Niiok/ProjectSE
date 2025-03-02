@@ -31,7 +31,7 @@ int64 UInteractionComponent::Local_Interact(class ASECharacter* InInteractor, in
 
 void UInteractionComponent::Auth_Hold(class ASECharacter* InHolder)
 {
-	if (InHolder)
+	if (IsValid(InHolder))
 	{
 		InHolder->Auth_SetCurrentHolding(this);
 	}
@@ -39,7 +39,7 @@ void UInteractionComponent::Auth_Hold(class ASECharacter* InHolder)
 
 void UInteractionComponent::Auth_UnHold(class ASECharacter* InUnHolder)
 {
-	if (InUnHolder && InUnHolder->GetHoldingComponent() == this)
+	if (IsValid(InUnHolder) && InUnHolder->GetHoldingComponent() == this)
 	{
 		InUnHolder->Auth_SetCurrentHolding(nullptr);
 	}
